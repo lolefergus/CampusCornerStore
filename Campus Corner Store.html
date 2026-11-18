@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Corner Store - Online Shopping Practice</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for friendly icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        /* Custom scrollbar for cart & modals */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased flex flex-col min-h-screen">
+
+    <!-- Practice Mode Top Banner -->
+    <div class="bg-amber-400 text-amber-950 px-4 py-2.5 text-center font-semibold text-sm sm:text-base flex flex-wrap items-center justify-center gap-2 shadow-sm">
+        <span class="inline-flex items-center gap-1.5 bg-amber-950 text-amber-300 px-2.5 py-0.5 rounded-full text-xs uppercase tracking-wider font-bold">
+            <i class="fa-solid fa-shield-halved"></i> Practice Mode
+        </span>
+        <span>Safe Learning Environment: No real money is charged, and no real personal info is saved!</span>
+        <button onclick="openTipsModal()" class="underline font-bold hover:text-amber-800 ml-1 inline-flex items-center gap-1 cursor-pointer">
+            <i class="fa-solid fa-lightbulb"></i> View Safety Tips
+        </button>
+    </div>
+
+    <!-- Main Navigation Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+            <!-- Store Logo & Name -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="resetFilters()">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-2xl shadow-md">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight leading-none">Campus Corner</h1>
+                    <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">Student Practice Store</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-3">
+                <!-- Safety Checklist Trigger -->
+                <button onclick="openTipsModal()" class="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-50 text-teal-800 hover:bg-teal-100 border border-teal-200 font-semibold text-sm transition cursor-pointer">
+                    <i class="fa-solid fa-circle-check text-teal-600 text-base"></i>
+                    <span>Shopping Tips</span>
+                </button>
+
+                <!-- Basket Button -->
+                <button onclick="toggleCart(true)" class="relative inline-flex items-center gap-2.5 px-4 sm:px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-base shadow-md transition transform active:scale-95 cursor-pointer">
+                    <i class="fa-solid fa-basket-shopping text-lg"></i>
+                    <span class="hidden sm:inline">My Basket</span>
+                    <span id="header-cart-count" class="bg-amber-400 text-slate-950 font-extrabold text-xs sm:text-sm px-2.5 py-0.5 rounded-full">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Welcome & Free UK Delivery Progress Banner -->
+        <div class="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-3xl p-6 sm:p-8 text-white shadow-lg mb-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+            <div class="max-w-2xl">
+                <h2 class="text-2xl sm:text-3xl font-extrabold mb-2">Welcome to Online Shopping Practice! 👋</h2>
+                <p class="text-indigo-100 text-base sm:text-lg leading-relaxed">
+                    Browse school, sixth-form, and uni essentials below. Add items to your basket, see how UK VAT and delivery charges work, and practice checking out safely!
+                </p>
+            </div>
+            <!-- Free UK Delivery Meter Box -->
+            <div class="bg-white/15 backdrop-blur-sm border border-white/25 rounded-2xl p-4 sm:p-5 w-full lg:w-80 shrink-0">
+                <div class="flex items-center gap-2 text-sm font-bold mb-2">
+                    <i class="fa-solid fa-truck-fast text-amber-300 text-lg"></i>
+                    <span id="shipping-promo-text">Spend £20.00 for FREE UK Delivery!</span>
+                </div>
+                <div class="w-full bg-indigo-950/50 rounded-full h-3 overflow-hidden">
+                    <div id="shipping-progress-bar" class="bg-amber-400 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <p class="text-xs text-indigo-100 mt-2">Standard UK delivery is £3.50 for orders under £20.00. All prices include VAT.</p>
+            </div>
+        </div>
+
+        <!-- Category Filters & Search Bar -->
+        <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 mb-8">
+            <!-- Category Pills -->
+            <div id="category-filters" class="flex flex-wrap items-center gap-2">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Search Input -->
+            <div class="relative w-full md:w-72">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="Search items..." class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 bg-white text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Product Cards rendered by JS -->
+        </div>
+
+        <!-- Empty Search State -->
+        <div id="empty-search-state" class="hidden text-center py-16 bg-white rounded-3xl border border-slate-200">
+            <div class="text-5xl mb-4">🔍</div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">No items found</h3>
+            <p class="text-slate-500 mb-6">Try clearing your search or picking a different category.</p>
+            <button onclick="resetFilters()" class="px-6 py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition cursor-pointer">
+                Show All Items
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+            <div class="flex items-center gap-2 font-semibold text-slate-700">
+                <i class="fa-solid fa-graduation-cap text-indigo-600 text-lg"></i>
+                <span>Campus Corner Practice Store — Built for Student Digital Literacy</span>
+            </div>
+            <button onclick="openTipsModal()" class="text-indigo-600 font-bold hover:underline cursor-pointer">
+                Review Online Shopping Safety Checklist
+            </button>
+        </div>
+    </footer>
+
+    <!-- ========================================== -->
+    <!-- SLIDE-OVER SHOPPING CART DRAWER            -->
+    <!-- ========================================== -->
+    <div id="cart-backdrop" onclick="toggleCart(false)" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-40 hidden transition-opacity"></div>
+    
+    <aside id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+        <!-- Cart Header -->
+        <div class="p-5 sm:p-6 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-extrabold text-slate-900">Your Shopping Cart</h2>
+                    <p id="cart-subtitle" class="text-xs text-slate-500 font-medium">0 items selected</p>
+                </div>
+            </div>
+            <button onclick="toggleCart(false)" aria-label="Close Cart" class="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 flex items-center justify-center text-lg cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Cart Items List -->
+        <div id="cart-items-container" class="flex-grow overflow-y-auto p-5 sm:p-6 space-y-4">
+            <!-- Populated by JS -->
+        </div>
+
+        <!-- Cart Summary & Checkout Button -->
+        <div id="cart-footer" class="p-5 sm:p-6 border-t border-slate-200 bg-slate-50 space-y-4">
+            <!-- Breakdown Box -->
+            <div class="bg-white rounded-2xl p-4 border border-slate-200 space-y-2.5 text-sm sm:text-base">
+                <div class="flex justify-between text-slate-600">
+                    <span>Subtotal (Items)</span>
+                    <span id="cart-subtotal" class="font-semibold text-slate-900">$0.00</span>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                    <span class="flex items-center gap-1.5">
+                        Practice Sales Tax (8%)
+                        <span title="Sales tax is added to most online purchases based on where you live." class="text-slate-400 cursor-help"><i class="fa-solid fa-circle-info"></i></span>
+                    </span>
+                    <span id="cart-tax" class="font-semibold text-slate-900">$0.00</span>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                    <span class="flex items-center gap-1.5">
+                        Shipping
+                        <span id="free-shipping-badge" class="hidden bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded-full">FREE!</span>
+                    </span>
+                    <span id="cart-shipping" class="font-semibold text-slate-900">$0.00</span>
+                </div>
+                <div class="border-t border-slate-200 pt-2.5 flex justify-between items-center text-lg font-extrabold text-slate-900">
+                    <span>Estimated Total</span>
+                    <span id="cart-total" class="text-indigo-600 text-xl">$0.00</span>
+                </div>
+            </div>
+
+            <button id="proceed-checkout-btn" onclick="openCheckoutModal()" class="w-full py-4 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-extrabold text-lg shadow-lg transition flex items-center justify-center gap-2 cursor-pointer">
+                <span>Proceed to Practice Checkout</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- ========================================== -->
+    <!-- GUIDED PRACTICE CHECKOUT MODAL             -->
+    <!-- ========================================== -->
+    <div id="checkout-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden my-auto border border-slate-200">
+            
+            <!-- Modal Header with Practice Warning -->
+            <div class="bg-amber-400 px-6 py-2.5 text-amber-950 font-bold text-xs sm:text-sm flex items-center justify-between">
+                <span><i class="fa-solid fa-lock mr-1.5"></i> PRACTICE CHECKOUT: No real money is charged.</span>
+                <button onclick="closeCheckoutModal()" class="text-amber-950 hover:text-amber-800 font-extrabold cursor-pointer">Cancel ✕</button>
+            </div>
+
+            <!-- Step Progress Bar -->
+            <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
+                <div class="flex items-center justify-between max-w-md mx-auto">
+                    <div id="step-indicator-1" class="flex flex-col items-center gap-1 text-indigo-600 font-bold">
+                        <div class="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm">1</div>
+                        <span class="text-xs">Shipping</span>
+                    </div>
+                    <div class="h-1 flex-grow bg-slate-200 mx-2 rounded-full overflow-hidden">
+                        <div id="step-line-1" class="h-full bg-indigo-600 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div id="step-indicator-2" class="flex flex-col items-center gap-1 text-slate-400 font-semibold">
+                        <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-sm">2</div>
+                        <span class="text-xs">Payment</span>
+                    </div>
+                    <div class="h-1 flex-grow bg-slate-200 mx-2 rounded-full overflow-hidden">
+                        <div id="step-line-2" class="h-full bg-indigo-600 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div id="step-indicator-3" class="flex flex-col items-center gap-1 text-slate-400 font-semibold">
+                        <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-sm">3</div>
+                        <span class="text-xs">Review</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Checkout Form Body -->
+            <div class="p-6 sm:p-8 max-h-[75vh] overflow-y-auto">
+                
+                <!-- STEP 1: SHIPPING INFORMATION -->
+                <div id="checkout-step-1" class="space-y-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-blue-50 border border-blue-200 rounded-2xl p-4">
+                        <div class="text-sm text-blue-900">
+                            <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-blue-600"></i> Learning Tip: Shipping Address</p>
+                            <p class="mt-0.5 text-blue-800">Online stores need an address to deliver packages. Use our sample button so you don't share real personal info!</p>
+                        </div>
+                        <button type="button" onclick="fillSampleShipping()" class="shrink-0 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-xs transition cursor-pointer">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Fill Sample Student Info
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-bold text-slate-700 mb-1">Full Name</label>
+                            <input type="text" id="ship-name" placeholder="e.g., Alex Rivera" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-base">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-bold text-slate-700 mb-1">Street Address</label>
+                            <input type="text" id="ship-address" placeholder="e.g., 123 Learning Lane, Apt 4B" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-base">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1">City</label>
+                            <input type="text" id="ship-city" placeholder="e.g., Mapleton" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-base">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1">ZIP / Postal Code</label>
+                            <input type="text" id="ship-zip" placeholder="e.g., 90210" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-base">
+                        </div>
+                    </div>
+
+                    <p id="step-1-error" class="hidden text-rose-600 font-semibold text-sm bg-rose-50 p-3 rounded-xl border border-rose-200">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Please fill in all shipping fields (or click "Fill Sample Student Info").
+                    </p>
+
+                    <div class="pt-2 flex justify-end">
+                        <button type="button" onclick="goToCheckoutStep(2)" class="px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-base shadow-md transition flex items-center gap-2 cursor-pointer">
+                            <span>Next: Payment Method</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 2: PRACTICE PAYMENT METHOD -->
+                <div id="checkout-step-2" class="hidden space-y-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
+                        <div class="text-sm text-emerald-900">
+                            <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-emerald-600"></i> Learning Tip: Safe Payments</p>
+                            <p class="mt-0.5 text-emerald-800">Never type a real credit card on practice sites! Click the button to insert a fake test card.</p>
+                        </div>
+                        <button type="button" onclick="fillPracticeCard()" class="shrink-0 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-xs transition cursor-pointer">
+                            <i class="fa-solid fa-credit-card mr-1"></i> Use Practice Card
+                        </button>
+                    </div>
+
+                    <div class="bg-slate-800 text-white rounded-2xl p-5 shadow-inner space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs uppercase tracking-widest text-slate-400 font-bold">Practice Debit / Credit Card</span>
+                            <i class="fa-brands fa-cc-visa text-2xl text-amber-400"></i>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-300 mb-1">Card Number</label>
+                            <input type="text" id="pay-card" placeholder="4111 1111 1111 1234" class="w-full px-4 py-2.5 rounded-xl bg-slate-700 border border-slate-600 text-white font-mono text-base focus:outline-none focus:ring-2 focus:ring-amber-400">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs text-slate-300 mb-1">Expiration (MM/YY)</label>
+                                <input type="text" id="pay-exp" placeholder="09/29" class="w-full px-4 py-2.5 rounded-xl bg-slate-700 border border-slate-600 text-white font-mono text-base focus:outline-none focus:ring-2 focus:ring-amber-400">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-300 mb-1">Security Code (CVV)</label>
+                                <input type="text" id="pay-cvv" placeholder="123" class="w-full px-4 py-2.5 rounded-xl bg-slate-700 border border-slate-600 text-white font-mono text-base focus:outline-none focus:ring-2 focus:ring-amber-400">
+                            </div>
+                        </div>
+                    </div>
+
+                    <p id="step-2-error" class="hidden text-rose-600 font-semibold text-sm bg-rose-50 p-3 rounded-xl border border-rose-200">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Please enter practice card details (or click "Use Practice Card").
+                    </p>
+
+                    <div class="pt-2 flex items-center justify-between gap-3">
+                        <button type="button" onclick="goToCheckoutStep(1)" class="px-5 py-3.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 font-bold text-base transition cursor-pointer">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> Back
+                        </button>
+                        <button type="button" onclick="goToCheckoutStep(3)" class="px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-base shadow-md transition flex items-center gap-2 cursor-pointer">
+                            <span>Next: Review Order</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 3: FINAL REVIEW BEFORE PLACING ORDER -->
+                <div id="checkout-step-3" class="hidden space-y-5">
+                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-amber-950">
+                        <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-magnifying-glass-dollar text-amber-600"></i> Learning Tip: Always Review Before Paying!</p>
+                        <p class="mt-0.5">Before clicking "Place Order", smart shoppers double-check their items, shipping address, and the <strong>Final Total</strong> (including tax and shipping).</p>
+                    </div>
+
+                    <!-- Summary Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-1">Deliver To</h4>
+                            <p id="review-ship-name" class="font-bold text-slate-900"></p>
+                            <p id="review-ship-address" class="text-sm text-slate-600"></p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-1">Payment Method</h4>
+                            <p class="font-bold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-credit-card text-indigo-600"></i>
+                                <span id="review-pay-card"></span>
+                            </p>
+                            <p class="text-xs text-emerald-700 font-semibold mt-1">Practice Card ($0.00 real charge)</p>
+                        </div>
+                    </div>
+
+                    <!-- Itemized Review List -->
+                    <div class="border border-slate-200 rounded-2xl overflow-hidden">
+                        <div class="bg-slate-100 px-4 py-2.5 text-xs font-extrabold uppercase tracking-wider text-slate-600">
+                            Items & Final Cost Breakdown
+                        </div>
+                        <div id="review-items-list" class="p-4 divide-y divide-slate-100 text-sm max-h-40 overflow-y-auto">
+                            <!-- Populated by JS -->
+                        </div>
+                        <div class="bg-slate-50 p-4 border-t border-slate-200 space-y-1.5 text-sm">
+                            <div class="flex justify-between text-slate-600">
+                                <span>Subtotal:</span>
+                                <span id="review-subtotal" class="font-semibold"></span>
+                            </div>
+                            <div class="flex justify-between text-slate-600">
+                                <span>Practice Tax (8%):</span>
+                                <span id="review-tax" class="font-semibold"></span>
+                            </div>
+                            <div class="flex justify-between text-slate-600">
+                                <span>Shipping:</span>
+                                <span id="review-shipping" class="font-semibold"></span>
+                            </div>
+                            <div class="flex justify-between text-lg font-extrabold text-slate-900 pt-2 border-t border-slate-200">
+                                <span>Final Total:</span>
+                                <span id="review-total" class="text-indigo-600"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 flex items-center justify-between gap-3">
+                        <button type="button" onclick="goToCheckoutStep(2)" class="px-5 py-3.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 font-bold text-base transition cursor-pointer">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> Back
+                        </button>
+                        <button type="button" onclick="completePracticeOrder()" class="px-7 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-base sm:text-lg shadow-lg transition flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-check-circle"></i>
+                            <span>Place Practice Order</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ORDER CONFIRMATION & RECEIPT MODAL         -->
+    <!-- ========================================== -->
+    <div id="receipt-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden my-auto border border-slate-200 text-center">
+            <!-- Celebratory Header -->
+            <div class="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-6 sm:p-8">
+                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-4xl mx-auto mb-3 shadow-inner">
+                    🎉
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold">Practice Order Complete!</h2>
+                <p class="text-emerald-100 text-sm sm:text-base mt-1">Great job! You safely reviewed your cart and completed checkout.</p>
+                <div class="mt-4 inline-block bg-emerald-950/30 border border-white/25 px-4 py-1.5 rounded-full text-xs sm:text-sm font-mono font-bold">
+                    Order #<span id="receipt-order-number">CCS-84920</span>
+                </div>
+            </div>
+
+            <!-- Digital Receipt Body -->
+            <div class="p-6 sm:p-8 text-left space-y-5">
+                <div class="flex items-center justify-between text-xs text-slate-500 border-b border-dashed border-slate-300 pb-3">
+                    <span>Date: <strong id="receipt-date" class="text-slate-700"></strong></span>
+                    <span class="bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded">PRACTICE RECEIPT</span>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-2">Items Purchased</h4>
+                    <div id="receipt-items" class="space-y-2 text-sm max-h-40 overflow-y-auto pr-1">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-1.5 text-sm">
+                    <div class="flex justify-between text-slate-600">
+                        <span>Subtotal</span>
+                        <span id="receipt-subtotal" class="font-semibold"></span>
+                    </div>
+                    <div class="flex justify-between text-slate-600">
+                        <span>Practice Tax (8%)</span>
+                        <span id="receipt-tax" class="font-semibold"></span>
+                    </div>
+                    <div class="flex justify-between text-slate-600">
+                        <span>Shipping</span>
+                        <span id="receipt-shipping" class="font-semibold"></span>
+                    </div>
+                    <div class="flex justify-between text-base font-extrabold text-slate-900 pt-2 border-t border-slate-200">
+                        <span>Total Paid (Practice)</span>
+                        <span id="receipt-total" class="text-emerald-600"></span>
+                    </div>
+                </div>
+
+                <button onclick="startNewPracticeOrder()" class="w-full py-4 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-base sm:text-lg shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Start New Practice Order</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ONLINE SHOPPING SAFETY TIPS MODAL          -->
+    <!-- ========================================== -->
+    <div id="tips-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-xl w-full shadow-2xl overflow-hidden my-auto border border-slate-200">
+            <div class="bg-teal-600 text-white p-6 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center text-2xl">
+                        <i class="fa-solid fa-shield-heart"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-extrabold">Smart Online Shopping Tips</h3>
+                        <p class="text-teal-100 text-xs sm:text-sm">5 Golden Rules for Safe Buying</p>
+                    </div>
+                </div>
+                <button onclick="closeTipsModal()" class="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center text-white cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-4 text-sm sm:text-base">
+                <div class="flex items-start gap-3.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                    <span class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-extrabold flex items-center justify-center shrink-0">1</span>
+                    <div>
+                        <h4 class="font-bold text-slate-900">Check the Final Total (Not Just Item Price)</h4>
+                        <p class="text-slate-600 text-sm mt-0.5">Sales tax and shipping fees are added at checkout. Always check the final total before you buy.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                    <span class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 font-extrabold flex items-center justify-center shrink-0">2</span>
+                    <div>
+                        <h4 class="font-bold text-slate-900">Protect Your Personal & Card Info</h4>
+                        <p class="text-slate-600 text-sm mt-0.5">Never type real passwords, home addresses, or real bank cards on practice or unfamiliar websites.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                    <span class="w-8 h-8 rounded-full bg-amber-100 text-amber-800 font-extrabold flex items-center justify-center shrink-0">3</span>
+                    <div>
+                        <h4 class="font-bold text-slate-900">Watch Out for Shipping Fees</h4>
+                        <p class="text-slate-600 text-sm mt-0.5">Many stores offer free shipping once your cart reaches a certain amount (like $25 here!).</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                    <span class="w-8 h-8 rounded-full bg-rose-100 text-rose-700 font-extrabold flex items-center justify-center shrink-0">4</span>
+                    <div>
+                        <h4 class="font-bold text-slate-900">Double-Check Quantities</h4>
+                        <p class="text-slate-600 text-sm mt-0.5">Make sure you didn't accidentally add 2 or 3 of the same item before placing your order.</p>
+                    </div>
+                </div>
+
+                <button onclick="closeTipsModal()" class="w-full py-3.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-base shadow-md transition cursor-pointer">
+                    Got It, Let's Practice!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subtle Toast Notification -->
+    <div id="toast-notification" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl font-semibold text-sm flex items-center gap-2.5 z-50 transition-all duration-300 opacity-0 pointer-events-none translate-y-4">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toast-message">Added to cart!</span>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- APPLICATION JAVASCRIPT LOGIC               -->
+    <!-- ========================================== -->
+    <!-- SLIDE-OVER SHOPPING BASKET DRAWER          -->
+    <!-- ========================================== -->
+    <div id="cart-backdrop" onclick="toggleCart(false)" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-40 hidden transition-opacity"></div>
+    
+    <aside id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+        <!-- Basket Header -->
+        <div class="p-5 sm:p-6 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-basket-shopping"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-extrabold text-slate-900">Your Shopping Basket</h2>
+                    <p id="cart-subtitle" class="text-xs text-slate-500 font-medium">0 items selected</p>
+                </div>
+            </div>
+            <button onclick="toggleCart(false)" aria-label="Close Basket" class="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 flex items-center justify-center text-lg cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Basket Items List -->
+        <div id="cart-items-container" class="flex-grow overflow-y-auto p-5 sm:p-6 space-y-4">
+            <!-- Populated by JS -->
+        </div>
+
+        <!-- Basket Summary & Checkout Button -->
+        <div id="cart-footer" class="p-5 sm:p-6 border-t border-slate-200 bg-slate-50 space-y-4">
+            <!-- Breakdown Box -->
+            <div class="bg-white rounded-2xl p-4 border border-slate-200 space-y-2.5 text-sm sm:text-base">
+                <div class="flex justify-between text-slate-600">
+                    <span>Items Subtotal (inc. VAT)</span>
+                    <span id="cart-subtotal" class="font-semibold text-slate-900">£0.00</span>
+                </div>
+                <div class="flex justify-between text-slate-500 text-xs sm:text-sm">
+                    <span class="flex items-center gap-1.5">
+                        Includes UK VAT (20%)
+                        <span title="In the UK, shop prices already include 20% Value Added Tax (VAT)." class="text-slate-400 cursor-help"><i class="fa-solid fa-circle-info"></i></span>
+                    </span>
+                    <span id="cart-tax" class="font-medium text-slate-700">£0.00</span>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                    <span class="flex items-center gap-1.5">
+                        Standard UK Delivery
+                        <span id="free-shipping-badge" class="hidden bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded-full">FREE!</span>
+                    </span>
+                    <span id="cart-shipping" class="font-semibold text-slate-900">£0.00</span>
+                </div>
+                <div class="border-t border-slate-200 pt-2.5 flex justify-between items-center text-lg font-extrabold text-slate-900">
+                    <span>Total to Pay</span>
+                    <span id="cart-total" class="text-indigo-600 text-xl">£0.00</span>
+                </div>
+            </div>
+
+            <button id="proceed-checkout-btn" onclick="openCheckoutModal()" class="w-full py-4 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-extrabold text-lg shadow-lg transition flex items-center justify-center gap-2 cursor-pointer">
+                <span>Proceed to Practice Checkout</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- ========================================== -->
+    <!-- GUIDED PRACTICE CHECKOUT MODAL             -->
+    <!-- ========================================== -->
+    <div id="checkout-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden my-auto border border-slate-200">
+            
+            <!-- Modal Header with Practice Warning -->
+            <div class="bg-amber-400 px-6 py-2.5 text-amber-950 font-bold text-xs sm:text-sm flex items-center justify-between">
+                <span><i class="fa-solid fa-lock mr-1.5"></i> PRACTICE CHECKOUT: No real money is charged.</span>
+                <button onclick="closeCheckoutModal()" class="text-amber-950 hover:text-amber-800 font-extrabold cursor-pointer">Cancel ✕</button>
+            </div>
+
+            <!-- Step Progress Bar -->
+            <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
+                <div class="flex items-center justify-between max-w-md mx-auto">
+                    <div id="step-indicator-1" class="flex flex-col items-center gap-1 text-indigo-600 font-bold">
+                        <div class="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm">1</div>
+                        <span class="text-xs">Delivery</span>
+                    </div>
+                    <div class="h-1 flex-grow bg-slate-200 mx-2 rounded-full overflow-hidden">
+                        <div id="step-line-1" class="h-full bg-indigo-600 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div id="step-indicator-2" class="flex flex-col items-center gap-1 text-slate-400 font-semibold">
+                        <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-sm">2</div>
+                        <span class="text-xs">Payment</span>
+                    </div>
+                    <div class="h-1 flex-grow bg-slate-200 mx-2 rounded-full overflow-hidden">
+                        <div id="step-line-2" class="h-full bg-indigo-600 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div id="step-indicator-3" class="flex flex-col items-center gap-1 text-slate-400 font-semibold">
+                        <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-sm">3</div>
+                        <span class="text-xs">Review</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Checkout Form Body -->
+            <div class="p-6 sm:p-8 max-h-[75vh] overflow-y-auto">
+                
+                <!-- STEP 1: UK DELIVERY INFORMATION -->
+                <div id="checkout-step-1" class="space-y-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-blue-50 border border-blue-200 rounded-2xl p-4">
+                        <div class="text-sm text-blue-900">
+                            <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-blue-600"></i> Learning Tip: UK Delivery Details</p>
+                            <p class="mt-0.5 text-blue-800">UK shops use your house number, street, town/city, and UK postcode to deliver parcels. Click the button to fill sample details so you don't share real personal info!</p>
+                        </div>
+                        <button type="button" onclick="fillSampleShipping()" class="shrink-0 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-xs transition cursor-pointer">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Fill Sample UK Student Info
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1">Full Name <span class="text-rose-500">*</span></label>
+                            <input type="text" id="ship-name" placeholder="e.g., Samira Patel" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-base">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1">Email Address <span class="text-rose-500">*</span></label>
+                            <input type="email" id="ship-email" placeholder="e.g., samira.practice@student.ac.uk" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-base">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-bold text-slate-700 mb-1">House Number / Flat & Street Address <span class="text-rose-500">*</span></label>
+                            <input type="text" id="ship-address" placeholder="e.g., Flat 4B, 18 Victoria Road" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-base">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1">Town / City <span class="text-rose-500">*</span></label>
+                            <input type="text" id="ship-city" placeholder="e.g., Manchester" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-base">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1">County <span class="text-slate-400 font-normal">(Optional)</span></label>
+                            <input type="text" id="ship-county" placeholder="e.g., Greater Manchester" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-base">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-bold text-slate-700 mb-1">UK Postcode <span class="text-rose-500">*</span></label>
+                            <input type="text" id="ship-zip" placeholder="e.g., M14 5TQ" class="w-full sm:w-1/2 px-4 py-3 rounded-xl border border-slate-300 uppercase font-mono focus:ring-2 focus:ring-indigo-500 focus:outline-none text-base">
+                            <p class="text-xs text-slate-500 mt-1">UK postcodes have two parts separated by a space (e.g., SW1A 1AA or M14 5TQ).</p>
+                        </div>
+                    </div>
+
+                    <p id="step-1-error" class="hidden text-rose-600 font-semibold text-sm bg-rose-50 p-3 rounded-xl border border-rose-200">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Please fill in all required UK delivery fields (or click "Fill Sample UK Student Info").
+                    </p>
+
+                    <div class="pt-2 flex justify-end">
+                        <button type="button" onclick="goToCheckoutStep(2)" class="px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-base shadow-md transition flex items-center gap-2 cursor-pointer">
+                            <span>Next: Payment Method</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 2: PRACTICE UK DEBIT CARD PAYMENT -->
+                <div id="checkout-step-2" class="hidden space-y-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
+                        <div class="text-sm text-emerald-900">
+                            <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-emerald-600"></i> Learning Tip: Safe UK Card Payments</p>
+                            <p class="mt-0.5 text-emerald-800">Never enter a real UK debit card number, sort code, or account number on practice sites! Click the button to insert a mock UK Visa Debit card.</p>
+                        </div>
+                        <button type="button" onclick="fillPracticeCard()" class="shrink-0 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-xs transition cursor-pointer">
+                            <i class="fa-solid fa-credit-card mr-1"></i> Use Practice Debit Card
+                        </button>
+                    </div>
+
+                    <div class="bg-slate-800 text-white rounded-2xl p-5 shadow-inner space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs uppercase tracking-widest text-slate-400 font-bold">Practice UK Visa Debit Card</span>
+                            <i class="fa-brands fa-cc-visa text-2xl text-amber-400"></i>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-300 mb-1">16-Digit Card Number (Not your account number)</label>
+                            <input type="text" id="pay-card" placeholder="4539 1234 5678 9010" class="w-full px-4 py-2.5 rounded-xl bg-slate-700 border border-slate-600 text-white font-mono text-base focus:outline-none focus:ring-2 focus:ring-amber-400">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs text-slate-300 mb-1">Expiry Date (MM/YY)</label>
+                                <input type="text" id="pay-exp" placeholder="09/29" class="w-full px-4 py-2.5 rounded-xl bg-slate-700 border border-slate-600 text-white font-mono text-base focus:outline-none focus:ring-2 focus:ring-amber-400">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-300 mb-1">3-Digit Security Code (CVV)</label>
+                                <input type="text" id="pay-cvv" placeholder="000" class="w-full px-4 py-2.5 rounded-xl bg-slate-700 border border-slate-600 text-white font-mono text-base focus:outline-none focus:ring-2 focus:ring-amber-400">
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-400 border-t border-slate-700 pt-2.5">
+                            <i class="fa-solid fa-circle-info mr-1 text-amber-400"></i> Note: Online shops ask for your 16-digit card number and 3-digit CVV—never your bank sort code or PIN.
+                        </p>
+                    </div>
+
+                    <p id="step-2-error" class="hidden text-rose-600 font-semibold text-sm bg-rose-50 p-3 rounded-xl border border-rose-200">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Please enter practice debit card details (or click "Use Practice Debit Card").
+                    </p>
+
+                    <div class="pt-2 flex items-center justify-between gap-3">
+                        <button type="button" onclick="goToCheckoutStep(1)" class="px-5 py-3.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 font-bold text-base transition cursor-pointer">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> Back
+                        </button>
+                        <button type="button" onclick="goToCheckoutStep(3)" class="px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-base shadow-md transition flex items-center gap-2 cursor-pointer">
+                            <span>Next: Review Order</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 3: FINAL REVIEW BEFORE PLACING ORDER -->
+                <div id="checkout-step-3" class="hidden space-y-5">
+                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-amber-950">
+                        <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-magnifying-glass-dollar text-amber-600"></i> Learning Tip: Always Review Before Paying!</p>
+                        <p class="mt-0.5">Before clicking "Place Practice Order", smart shoppers double-check their basket items, UK delivery address & postcode, and the <strong>Total to Pay</strong> (including delivery).</p>
+                    </div>
+
+                    <!-- Summary Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-1">Deliver To</h4>
+                            <p id="review-ship-name" class="font-bold text-slate-900"></p>
+                            <p id="review-ship-address" class="text-sm text-slate-600 mt-0.5"></p>
+                            <p id="review-ship-email" class="text-xs text-slate-500 mt-1"></p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-1">Payment Method</h4>
+                            <p class="font-bold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-credit-card text-indigo-600"></i>
+                                <span id="review-pay-card"></span>
+                            </p>
+                            <p class="text-xs text-emerald-700 font-semibold mt-1">Practice UK Debit Card (£0.00 real charge)</p>
+                        </div>
+                    </div>
+
+                    <!-- Itemized Review List -->
+                    <div class="border border-slate-200 rounded-2xl overflow-hidden">
+                        <div class="bg-slate-100 px-4 py-2.5 text-xs font-extrabold uppercase tracking-wider text-slate-600">
+                            Basket Items & Cost Breakdown
+                        </div>
+                        <div id="review-items-list" class="p-4 divide-y divide-slate-100 text-sm max-h-40 overflow-y-auto">
+                            <!-- Populated by JS -->
+                        </div>
+                        <div class="bg-slate-50 p-4 border-t border-slate-200 space-y-1.5 text-sm">
+                            <div class="flex justify-between text-slate-600">
+                                <span>Items Subtotal (inc. VAT):</span>
+                                <span id="review-subtotal" class="font-semibold"></span>
+                            </div>
+                            <div class="flex justify-between text-slate-500 text-xs">
+                                <span>Includes UK VAT (20%):</span>
+                                <span id="review-tax" class="font-medium"></span>
+                            </div>
+                            <div class="flex justify-between text-slate-600">
+                                <span>Standard UK Delivery:</span>
+                                <span id="review-shipping" class="font-semibold"></span>
+                            </div>
+                            <div class="flex justify-between text-lg font-extrabold text-slate-900 pt-2 border-t border-slate-200">
+                                <span>Total to Pay:</span>
+                                <span id="review-total" class="text-indigo-600"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 flex items-center justify-between gap-3">
+                        <button type="button" onclick="goToCheckoutStep(2)" class="px-5 py-3.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 font-bold text-base transition cursor-pointer">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> Back
+                        </button>
+                        <button type="button" onclick="completePracticeOrder()" class="px-7 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-base sm:text-lg shadow-lg transition flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-check-circle"></i>
+                            <span>Place Practice Order</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ORDER CONFIRMATION & UK RECEIPT MODAL      -->
+    <!-- ========================================== -->
+    <div id="receipt-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden my-auto border border-slate-200 text-center">
+            <!-- Celebratory Header -->
+            <div class="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-6 sm:p-8">
+                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-4xl mx-auto mb-3 shadow-inner">
+                    🎉
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold">Practice Order Complete!</h2>
+                <p class="text-emerald-100 text-sm sm:text-base mt-1">Brilliant job! You safely reviewed your basket and completed checkout.</p>
+                <div class="mt-4 inline-block bg-emerald-950/30 border border-white/25 px-4 py-1.5 rounded-full text-xs sm:text-sm font-mono font-bold">
+                    Order Ref: <span id="receipt-order-number">UK-849201</span>
+                </div>
+            </div>
+
+            <!-- Digital Receipt Body -->
+            <div class="p-6 sm:p-8 text-left space-y-4">
+                <div class="flex items-center justify-between text-xs text-slate-500 border-b border-dashed border-slate-300 pb-3">
+                    <span>Date: <strong id="receipt-date" class="text-slate-700"></strong></span>
+                    <span class="bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded">UK PRACTICE RECEIPT</span>
+                </div>
+
+                <!-- Delivery Summary on Receipt -->
+                <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 text-xs sm:text-sm">
+                    <span class="font-bold text-slate-500 uppercase tracking-wider text-[11px] block mb-0.5">Delivery Address</span>
+                    <p id="receipt-address" class="font-semibold text-slate-800"></p>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-2">Items Purchased</h4>
+                    <div id="receipt-items" class="space-y-2 text-sm max-h-36 overflow-y-auto pr-1">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-1.5 text-sm">
+                    <div class="flex justify-between text-slate-600">
+                        <span>Items Subtotal (inc. VAT)</span>
+                        <span id="receipt-subtotal" class="font-semibold"></span>
+                    </div>
+                    <div class="flex justify-between text-slate-500 text-xs">
+                        <span>VAT Included (20%)</span>
+                        <span id="receipt-tax" class="font-medium"></span>
+                    </div>
+                    <div class="flex justify-between text-slate-600">
+                        <span>Standard UK Delivery</span>
+                        <span id="receipt-shipping" class="font-semibold"></span>
+                    </div>
+                    <div class="flex justify-between text-base font-extrabold text-slate-900 pt-2 border-t border-slate-200">
+                        <span>Total Paid (Practice)</span>
+                        <span id="receipt-total" class="text-emerald-600"></span>
+                    </div>
+                </div>
+
+                <button onclick="startNewPracticeOrder()" class="w-full py-4 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-base sm:text-lg shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Start New Practice Order</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- UK ONLINE SHOPPING SAFETY TIPS MODAL       -->
+    <!-- ========================================== -->
+    <div id="tips-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-xl w-full shadow-2xl overflow-hidden my-auto border border-slate-200">
+            <div class="bg-teal-600 text-white p-6 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center text-2xl">
+                        <i class="fa-solid fa-shield-heart"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-extrabold">Smart UK Online Shopping Tips</h3>
+                        <p class="text-teal-100 text-xs sm:text-sm">4 Golden Rules for UK Shoppers</p>
+                    </div>
+                </div>
+                <button onclick="closeTipsModal()" class="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center text-white cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-4 text-sm sm:text-base">
+                <div class="flex items-start gap-3.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                    <span class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-extrabold flex items-center justify-center shrink-0">1</span>
+                    <div>
+                        <h4 class="font-bold text-slate-900">Look for HTTPS & the Padlock Icon</h4>
+                        <p class="text-slate-600 text-sm mt-0.5">Before entering personal details on real websites, check the address bar for <strong>https://</strong> and a padlock symbol so your data is encrypted.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                    <span class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 font-extrabold flex items-center justify-center shrink-0">2</span>
+                    <div>
+                        <h4 class="font-bold text-slate-900">Know Your UK Consumer Rights (14-Day Returns)</h4>
+                        <p class="text-slate-600 text-sm mt-0.5">Under the UK Consumer Contracts Regulations, you usually have <strong>14 days</strong> to cancel and return most online orders after delivery.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                    <span class="w-8 h-8 rounded-full bg-amber-100 text-amber-800 font-extrabold flex items-center justify-center shrink-0">3</span>
+                    <div>
+                        <h4 class="font-bold text-slate-900">Check VAT & Delivery Charges</h4>
+                        <p class="text-slate-600 text-sm mt-0.5">UK retail prices normally include 20% VAT, but delivery charges are often added at checkout unless you hit the free delivery threshold (like £20 here).</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                    <span class="w-8 h-8 rounded-full bg-rose-100 text-rose-700 font-extrabold flex items-center justify-center shrink-0">4</span>
+                    <div>
+                        <h4 class="font-bold text-slate-900">Never Use Real Bank Cards on Practice Sites</h4>
+                        <p class="text-slate-600 text-sm mt-0.5">Keep your real debit card details, sort code, and home address private when practising or browsing unfamiliar sites.</p>
+                    </div>
+                </div>
+
+                <button onclick="closeTipsModal()" class="w-full py-3.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-base shadow-md transition cursor-pointer">
+                    Got It, Let's Practice!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subtle Toast Notification -->
+    <div id="toast-notification" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl font-semibold text-sm flex items-center gap-2.5 z-50 transition-all duration-300 opacity-0 pointer-events-none translate-y-4">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toast-message">Added to basket!</span>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- APPLICATION JAVASCRIPT LOGIC               -->
+    <!-- ========================================== -->
+    <script>
+        // 1. UK PRODUCT CATALOG DATA (Prices in £ GBP, inclusive of 20% UK VAT)
+        const PRODUCTS = [
+            {
+                id: 1,
+                name: "A4 Ring Binder & Dividers",
+                category: "Stationery",
+                price: 5.50,
+                emoji: "📁",
+                color: "bg-blue-100 text-blue-700",
+                description: "Sturdy A4 lever-arch folder with 10 colour-coded subject dividers for coursework."
+            },
+            {
+                id: 2,
+                name: "Rucksack / Campus Backpack",
+                category: "Bags & Gear",
+                price: 22.99,
+                emoji: "🎒",
+                color: "bg-indigo-100 text-indigo-700",
+                description: "Water-resistant rucksack with padded laptop sleeve and side flask pockets."
+            },
+            {
+                id: 3,
+                name: "Scientific Calculator (GCSE/A-Level)",
+                category: "Tech",
+                price: 13.50,
+                emoji: "🧮",
+                color: "bg-emerald-100 text-emerald-700",
+                description: "Exam-approved dual-line scientific calculator for GCSE and A-Level maths."
+            },
+            {
+                id: 4,
+                name: "Fountain & Gel Pen Set",
+                category: "Stationery",
+                price: 6.75,
+                emoji: "✒️",
+                color: "bg-teal-100 text-teal-700",
+                description: "Smooth blue and black ink pens with ergonomic grips for long exam essays."
+            },
+            {
+                id: 5,
+                name: "Insulated Flask",
+                category: "Bags & Gear",
+                price: 11.00,
+                emoji: "🧴",
+                color: "bg-cyan-100 text-cyan-700",
+                description: "Double-walled stainless steel flask that keeps tea hot or water cold all day."
+            },
+            {
+                id: 6,
+                name: "A5 Dot-Grid Notebook",
+                category: "Stationery",
+                price: 4.99,
+                emoji: "📓",
+                color: "bg-sky-100 text-sky-700",
+                description: "Hardcover A5 dot-grid pad with 160 thick pages for revision notes and bullet lists."
+            },
+            {
+                id: 7,
+                name: "Revision Flashcards Pack",
+                category: "Study Aids",
+                price: 3.75,
+                emoji: "🗂️",
+                color: "bg-purple-100 text-purple-700",
+                description: "200 lined pastel index cards with metal binder rings for active recall revision."
+            },
+            {
+                id: 8,
+                name: "USB-C Fast Charger Plug (UK 3-Pin)",
+                category: "Tech",
+                price: 14.99,
+                emoji: "🔌",
+                color: "bg-slate-200 text-slate-800",
+                description: "20W UK 3-pin mains adapter with braided USB-C cable for phones and tablets."
+            },
+            {
+                id: 9,
+                name: "Watercolour Paint Tin",
+                category: "Art & Design",
+                price: 8.50,
+                emoji: "🎨",
+                color: "bg-rose-100 text-rose-700",
+                description: "24 vibrant watercolour pans with a travel brush in a compact metal tin."
+            },
+            {
+                id: 10,
+                name: "Fairtrade Flapjack & Fruit Box",
+                category: "Snacks",
+                price: 4.50,
+                emoji: "🥨",
+                color: "bg-amber-100 text-amber-800",
+                description: "6 individually wrapped British oaty flapjacks and dried fruit snack packs."
+            }
+        ];
+
+        // Constants for UK practice math
+        // In the UK, retail prices already include 20% VAT (so VAT portion = total * 20 / 120)
+        const UK_VAT_RATE = 0.20;
+        const FREE_DELIVERY_THRESHOLD = 20.00;
+        const STANDARD_DELIVERY_FEE = 3.50;
+
+        // Application State
+        let cart = []; // Array of { product, quantity }
+        let selectedCategory = "All";
+        let searchQuery = "";
+        let toastTimeout = null;
+
+        // Initialize Storefront on Load
+        window.addEventListener("DOMContentLoaded", () => {
+            renderCategories();
+            renderProducts();
+            updateCartUI();
+        });
+
+        // 2. RENDER CATEGORIES & PRODUCTS
+        function renderCategories() {
+            const categories = ["All", ...new Set(PRODUCTS.map(p => p.category))];
+            const container = document.getElementById("category-filters");
+            container.innerHTML = categories.map(cat => {
+                const isActive = cat === selectedCategory;
+                return `
+                    <button onclick="selectCategory('${cat}')"
+                        class="px-4 py-2.5 rounded-xl font-bold text-sm transition cursor-pointer ${
+                            isActive
+                                ? "bg-indigo-600 text-white shadow-sm"
+                                : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"
+                        }">
+                        ${cat}
+                    </button>
+                `;
+            }).join("");
+        }
+
+        function selectCategory(category) {
+            selectedCategory = category;
+            renderCategories();
+            renderProducts();
+        }
+
+        function handleSearch(value) {
+            searchQuery = value.trim().toLowerCase();
+            renderProducts();
+        }
+
+        function resetFilters() {
+            selectedCategory = "All";
+            searchQuery = "";
+            document.getElementById("search-input").value = "";
+            renderCategories();
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById("product-grid");
+            const emptyState = document.getElementById("empty-search-state");
+
+            const filtered = PRODUCTS.filter(product => {
+                const matchesCat = selectedCategory === "All" || product.category === selectedCategory;
+                const matchesSearch = product.name.toLowerCase().includes(searchQuery) ||
+                                      product.description.toLowerCase().includes(searchQuery);
+                return matchesCat && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = "";
+                emptyState.classList.remove("hidden");
+                return;
+            }
+
+            emptyState.classList.add("hidden");
+            grid.innerHTML = filtered.map(product => {
+                const inCartItem = cart.find(item => item.product.id === product.id);
+                const qtyBadge = inCartItem
+                    ? `<span class="bg-emerald-100 text-emerald-800 text-xs font-extrabold px-2.5 py-1 rounded-full">In Basket: ${inCartItem.quantity}</span>`
+                    : "";
+
+                return `
+                    <div class="bg-white rounded-3xl border border-slate-200 p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition">
+                        <div>
+                            <!-- Top Row: Category & In-Basket Badge -->
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                                <span class="text-xs font-bold px-2.5 py-1 rounded-lg ${product.color}">
+                                    ${product.category}
+                                </span>
+                                ${qtyBadge}
+                            </div>
+
+                            <!-- Friendly Emoji Illustration Box -->
+                            <div class="h-36 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-6xl mb-4 select-none">
+                                ${product.emoji}
+                            </div>
+
+                            <!-- Product Title & Description -->
+                            <h3 class="text-lg font-extrabold text-slate-900 leading-snug mb-1.5">${product.name}</h3>
+                            <p class="text-sm text-slate-600 leading-relaxed mb-4">${product.description}</p>
+                        </div>
+
+                        <!-- Price & Add Button -->
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                            <div>
+                                <span class="text-[11px] text-slate-400 block font-semibold">Inc. VAT</span>
+                                <span class="text-xl font-extrabold text-slate-900">£${product.price.toFixed(2)}</span>
+                            </div>
+                            <button onclick="addToCart(${product.id})"
+                                class="px-4 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-sm shadow-xs transition flex items-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Add to Basket</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        // 3. SHOPPING BASKET LOGIC & UK VAT CALCULATIONS
+        function calculateTotals() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+            let shipping = 0;
+            if (subtotal > 0 && subtotal < FREE_DELIVERY_THRESHOLD) {
+                shipping = STANDARD_DELIVERY_FEE;
+            }
+            const total = subtotal + shipping;
+            // In the UK, prices are VAT-inclusive. Extract the 20% VAT component from the total:
+            const vatIncluded = total - (total / (1 + UK_VAT_RATE));
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+            return { subtotal, vatIncluded, shipping, total, totalItems };
+        }
+
+        function addToCart(productId) {
+            const product = PRODUCTS.find(p => p.id === productId);
+            if (!product) return;
+
+            const existing = cart.find(item => item.product.id === productId);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ product, quantity: 1 });
+            }
+
+            updateCartUI();
+            renderProducts();
+            showToast(`Added "${product.name}" to your basket!`);
+        }
+
+        function updateQuantity(productId, delta) {
+            const index = cart.findIndex(item => item.product.id === productId);
+            if (index === -1) return;
+
+            cart[index].quantity += delta;
+            if (cart[index].quantity <= 0) {
+                cart.splice(index, 1);
+            }
+
+            updateCartUI();
+            renderProducts();
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.product.id !== productId);
+            updateCartUI();
+            renderProducts();
+        }
+
+        function updateCartUI() {
+            const { subtotal, vatIncluded, shipping, total, totalItems } = calculateTotals();
+
+            // Update Header Counter
+            document.getElementById("header-cart-count").textContent = totalItems;
+            document.getElementById("cart-subtitle").textContent = `${totalItems} ${totalItems === 1 ? "item" : "items"} selected`;
+
+            // Update Free UK Delivery Banner Progress
+            const promoText = document.getElementById("shipping-promo-text");
+            const progressBar = document.getElementById("shipping-progress-bar");
+            const remaining = Math.max(0, FREE_DELIVERY_THRESHOLD - subtotal);
+            const percent = Math.min(100, (subtotal / FREE_DELIVERY_THRESHOLD) * 100);
+
+            progressBar.style.width = `${percent}%`;
+            if (subtotal >= FREE_DELIVERY_THRESHOLD) {
+                promoText.textContent = "Brilliant! You unlocked FREE UK Delivery! 🎉";
+            } else if (subtotal === 0) {
+                promoText.textContent = "Spend £20.00 for FREE UK Delivery!";
+            } else {
+                promoText.textContent = `Add £${remaining.toFixed(2)} more for FREE UK Delivery!`;
+            }
+
+            // Render Basket Items
+            const container = document.getElementById("cart-items-container");
+            const checkoutBtn = document.getElementById("proceed-checkout-btn");
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 px-4">
+                        <div class="text-5xl mb-3">🧺</div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-1">Your basket is empty</h3>
+                        <p class="text-sm text-slate-500 mb-6">Add some stationery, tech, or snacks from the shop to practice checking out!</p>
+                        <button onclick="toggleCart(false)" class="px-5 py-2.5 rounded-xl bg-indigo-100 text-indigo-700 font-bold text-sm hover:bg-indigo-200 transition cursor-pointer">
+                            Browse Shop Items
+                        </button>
+                    </div>
+                `;
+                checkoutBtn.disabled = true;
+            } else {
+                checkoutBtn.disabled = false;
+                container.innerHTML = cart.map(item => `
+                    <div class="flex items-center gap-3.5 bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+                        <div class="w-14 h-14 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-3xl shrink-0">
+                            ${item.product.emoji}
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <h4 class="font-bold text-slate-900 text-sm sm:text-base truncate">${item.product.name}</h4>
+                            <p class="text-xs sm:text-sm text-slate-500 font-semibold">£${item.product.price.toFixed(2)} each</p>
+                            
+                            <!-- Quantity Stepper -->
+                            <div class="flex items-center gap-2 mt-2">
+                                <button onclick="updateQuantity(${item.product.id}, -1)" aria-label="Decrease quantity"
+                                    class="w-8 h-8 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 font-bold text-slate-700 flex items-center justify-center cursor-pointer">
+                                    -
+                                </button>
+                                <span class="w-7 text-center font-extrabold text-sm">${item.quantity}</span>
+                                <button onclick="updateQuantity(${item.product.id}, 1)" aria-label="Increase quantity"
+                                    class="w-8 h-8 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 font-bold text-slate-700 flex items-center justify-center cursor-pointer">
+                                    +
+                                </button>
+                            </div>
+                        </div>
+                        <div class="text-right flex flex-col items-end justify-between self-stretch">
+                            <button onclick="removeFromCart(${item.product.id})" title="Remove item"
+                                class="text-slate-400 hover:text-rose-600 text-sm p-1 cursor-pointer">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                            <span class="font-extrabold text-slate-900 text-sm sm:text-base">
+                                £${(item.product.price * item.quantity).toFixed(2)}
+                            </span>
+                        </div>
+                    </div>
+                `).join("");
+            }
+
+            // Update Totals Display
+            document.getElementById("cart-subtotal").textContent = `£${subtotal.toFixed(2)}`;
+            document.getElementById("cart-tax").textContent = `£${vatIncluded.toFixed(2)}`;
+            document.getElementById("cart-shipping").textContent = subtotal === 0 ? "£0.00" : (shipping === 0 ? "£0.00" : `£${shipping.toFixed(2)}`);
+            document.getElementById("cart-total").textContent = `£${total.toFixed(2)}`;
+
+            const freeBadge = document.getElementById("free-shipping-badge");
+            if (subtotal >= FREE_DELIVERY_THRESHOLD) {
+                freeBadge.classList.remove("hidden");
+            } else {
+                freeBadge.classList.add("hidden");
+            }
+        }
+
+        function toggleCart(open) {
+            const backdrop = document.getElementById("cart-backdrop");
+            const drawer = document.getElementById("cart-drawer");
+            if (open) {
+                backdrop.classList.remove("hidden");
+                drawer.classList.remove("translate-x-full");
+            } else {
+                backdrop.classList.add("hidden");
+                drawer.classList.add("translate-x-full");
+            }
+        }
+
+        // 4. GUIDED PRACTICE CHECKOUT FLOW
+        function openCheckoutModal() {
+            if (cart.length === 0) return;
+            toggleCart(false);
+            document.getElementById("checkout-modal").classList.remove("hidden");
+            goToCheckoutStep(1);
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById("checkout-modal").classList.add("hidden");
+        }
+
+        function fillSampleShipping() {
+            document.getElementById("ship-name").value = "Samira Patel";
+            document.getElementById("ship-email").value = "samira.patel@practice-uni.ac.uk";
+            document.getElementById("ship-address").value = "Flat 4B, 18 Victoria Road";
+            document.getElementById("ship-city").value = "Manchester";
+            document.getElementById("ship-county").value = "Greater Manchester";
+            document.getElementById("ship-zip").value = "M14 5TQ";
+            document.getElementById("step-1-error").classList.add("hidden");
+        }
+
+        function fillPracticeCard() {
+            document.getElementById("pay-card").value = "4539 1234 5678 9010";
+            document.getElementById("pay-exp").value = "08/29";
+            document.getElementById("pay-cvv").value = "000";
+            document.getElementById("step-2-error").classList.add("hidden");
+        }
+
+        function goToCheckoutStep(step) {
+            // Validate Step 1 before moving to Step 2
+            if (step === 2) {
+                const name = document.getElementById("ship-name").value.trim();
+                const email = document.getElementById("ship-email").value.trim();
+                const addr = document.getElementById("ship-address").value.trim();
+                const city = document.getElementById("ship-city").value.trim();
+                const postcode = document.getElementById("ship-zip").value.trim();
+
+                if (!name || !email || !addr || !city || !postcode) {
+                    document.getElementById("step-1-error").classList.remove("hidden");
+                    return;
+                }
+                document.getElementById("step-1-error").classList.add("hidden");
+            }
+
+            // Validate Step 2 before moving to Step 3
+            if (step === 3) {
+                const card = document.getElementById("pay-card").value.trim();
+                const exp = document.getElementById("pay-exp").value.trim();
+                const cvv = document.getElementById("pay-cvv").value.trim();
+
+                if (!card || !exp || !cvv) {
+                    document.getElementById("step-2-error").classList.remove("hidden");
+                    return;
+                }
+                document.getElementById("step-2-error").classList.add("hidden");
+                populateReviewStep();
+            }
+
+            // Toggle Step Panels
+            [1, 2, 3].forEach(s => {
+                const el = document.getElementById(`checkout-step-${s}`);
+                if (s === step) {
+                    el.classList.remove("hidden");
+                } else {
+                    el.classList.add("hidden");
+                }
+            });
+
+            // Update Progress Bar Indicators
+            updateStepIndicators(step);
+        }
+
+        function updateStepIndicators(currentStep) {
+            document.getElementById("step-line-1").style.width = currentStep >= 2 ? "100%" : "0%";
+            document.getElementById("step-line-2").style.width = currentStep >= 3 ? "100%" : "0%";
+
+            [1, 2, 3].forEach(s => {
+                const wrapper = document.getElementById(`step-indicator-${s}`);
+                const circle = wrapper.querySelector("div");
+                if (s <= currentStep) {
+                    wrapper.classList.remove("text-slate-400");
+                    wrapper.classList.add("text-indigo-600");
+                    circle.classList.remove("bg-slate-200", "text-slate-600");
+                    circle.classList.add("bg-indigo-600", "text-white");
+                } else {
+                    wrapper.classList.add("text-slate-400");
+                    wrapper.classList.remove("text-indigo-600");
+                    circle.classList.add("bg-slate-200", "text-slate-600");
+                    circle.classList.remove("bg-indigo-600", "text-white");
+                }
+            });
+        }
+
+        function formatUKAddress() {
+            const addr = document.getElementById("ship-address").value.trim();
+            const city = document.getElementById("ship-city").value.trim();
+            const county = document.getElementById("ship-county").value.trim();
+            const postcode = document.getElementById("ship-zip").value.trim().toUpperCase();
+
+            return county
+                ? `${addr}, ${city}, ${county}, ${postcode}`
+                : `${addr}, ${city}, ${postcode}`;
+        }
+
+        function populateReviewStep() {
+            const name = document.getElementById("ship-name").value.trim();
+            const email = document.getElementById("ship-email").value.trim();
+            const card = document.getElementById("pay-card").value.trim();
+            const last4 = card.slice(-4) || "9010";
+
+            document.getElementById("review-ship-name").textContent = name;
+            document.getElementById("review-ship-address").textContent = formatUKAddress();
+            document.getElementById("review-ship-email").textContent = `Confirmation email: ${email}`;
+            document.getElementById("review-pay-card").textContent = `UK Visa Debit ending in •••• ${last4}`;
+
+            const { subtotal, vatIncluded, shipping, total } = calculateTotals();
+
+            document.getElementById("review-items-list").innerHTML = cart.map(item => `
+                <div class="py-2 flex justify-between items-center">
+                    <span>${item.product.emoji} <strong>${item.quantity}x</strong> ${item.product.name}</span>
+                    <span class="font-semibold text-slate-800">£${(item.product.price * item.quantity).toFixed(2)}</span>
+                </div>
+            `).join("");
+
+            document.getElementById("review-subtotal").textContent = `£${subtotal.toFixed(2)}`;
+            document.getElementById("review-tax").textContent = `£${vatIncluded.toFixed(2)}`;
+            document.getElementById("review-shipping").textContent = shipping === 0 ? "FREE (£0.00)" : `£${shipping.toFixed(2)}`;
+            document.getElementById("review-total").textContent = `£${total.toFixed(2)}`;
+        }
+
+        // 5. ORDER COMPLETION & UK DIGITAL RECEIPT
+        function completePracticeOrder() {
+            const { subtotal, vatIncluded, shipping, total } = calculateTotals();
+            const randomOrderNum = "UK-" + Math.floor(100000 + Math.random() * 900000);
+            const today = new Date().toLocaleDateString("en-GB", {
+                day: "numeric", month: "short", year: "numeric"
+            });
+            const name = document.getElementById("ship-name").value.trim();
+
+            document.getElementById("receipt-order-number").textContent = randomOrderNum;
+            document.getElementById("receipt-date").textContent = today;
+            document.getElementById("receipt-address").textContent = `${name} — ${formatUKAddress()}`;
+
+            document.getElementById("receipt-items").innerHTML = cart.map(item => `
+                <div class="flex justify-between items-center text-slate-700">
+                    <span>${item.product.emoji} ${item.quantity}x ${item.product.name}</span>
+                    <span class="font-semibold">£${(item.product.price * item.quantity).toFixed(2)}</span>
+                </div>
+            `).join("");
+
+            document.getElementById("receipt-subtotal").textContent = `£${subtotal.toFixed(2)}`;
+            document.getElementById("receipt-tax").textContent = `£${vatIncluded.toFixed(2)}`;
+            document.getElementById("receipt-shipping").textContent = shipping === 0 ? "FREE (£0.00)" : `£${shipping.toFixed(2)}`;
+            document.getElementById("receipt-total").textContent = `£${total.toFixed(2)}`;
+
+            closeCheckoutModal();
+            document.getElementById("receipt-modal").classList.remove("hidden");
+        }
+
+        function startNewPracticeOrder() {
+            cart = [];
+            // Clear checkout inputs for fresh practice
+            document.getElementById("ship-name").value = "";
+            document.getElementById("ship-email").value = "";
+            document.getElementById("ship-address").value = "";
+            document.getElementById("ship-city").value = "";
+            document.getElementById("ship-county").value = "";
+            document.getElementById("ship-zip").value = "";
+            document.getElementById("pay-card").value = "";
+            document.getElementById("pay-exp").value = "";
+            document.getElementById("pay-cvv").value = "";
+
+            document.getElementById("receipt-modal").classList.add("hidden");
+            updateCartUI();
+            renderProducts();
+            showToast("Ready for a new practice order!");
+        }
+
+        // 6. SAFETY TIPS MODAL & TOAST HELPERS
+        function openTipsModal() {
+            document.getElementById("tips-modal").classList.remove("hidden");
+        }
+
+        function closeTipsModal() {
+            document.getElementById("tips-modal").classList.add("hidden");
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("toast-notification");
+            document.getElementById("toast-message").textContent = message;
+            toast.classList.remove("opacity-0", "translate-y-4");
+
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add("opacity-0", "translate-y-4");
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
